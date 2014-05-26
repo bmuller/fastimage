@@ -7,11 +7,11 @@ FastImage finds the size or type of an image given its uri by fetching as little
 ## Installation
 
 ```
-easy_install fastimage
+pip install fastimage
 ```
 
 ## Usage
-*This assumes you have a working familiarity with Twisted.*
+*This assumes you have a working familiarity with [Twisted](http://twistedmatrix.com).*
 
 Usage is pretty dang simple.
 
