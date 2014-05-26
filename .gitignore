@@ -1,0 +1,5 @@
+apidoc
+*.pyc
+build
+dist
+fastimage.egg-info
