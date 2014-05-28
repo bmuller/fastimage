@@ -1,12 +1,11 @@
+from pkg_resources import resource_string
 import treq
 from fastimage.collector import ImageCollector
 
-
-version_info = (0, 1)
-version = '.'.join(map(str, version_info))
-
+version = resource_string(__name__, "_version").strip()
 
 def _collect(url):
+
     if isinstance(url, unicode):
         url = url.encode('ascii', errors='ignore')
     collector = ImageCollector()

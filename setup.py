@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-from fastimage import version
+import os.path
+
+with open(os.path.join(os.path.dirname(__file__), "fastimage", "_version")) as ver:
+    version = ver.readline().strip()
 
 setup(
     name="fastimage",
     version=version,
+    package_data={"fastimage": ["_version"]},
     description="Finds the size or type of an image given its uri by fetching as little as needed",
     author="Brian Muller",
     author_email="bamuller@gmail.com",
