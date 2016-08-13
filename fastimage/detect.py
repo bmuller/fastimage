@@ -34,15 +34,15 @@ class ImageCollector:
             chunk = await response.content.read(8)
 
 
-def gif(bytes):
+def gif(bites):
     try:
-        return struct.unpack('<HH', bytes[6:10])
-    except:
+        return struct.unpack('<HH', bites[6:10])
+    except struct.error:
         return None
 
 
-def jpeg(bytes):
-    fhandle = BytesIO(bytes)
+def jpeg(bites):
+    fhandle = BytesIO(bites)
     try:
         fhandle.seek(0)
         size = 2
@@ -55,39 +55,40 @@ def jpeg(bytes):
             ftype = ord(byte)
             size = struct.unpack('>H', fhandle.read(2))[0] - 2
         fhandle.seek(1, 1)
-        h, w = struct.unpack('>HH', fhandle.read(4))
-        return w, h
-    except Exception as e:
+        return struct.unpack('>HH', fhandle.read(4))
+    except struct.error:
+        return None
+    except TypeError:
         return None
 
 
-def png(bytes):
+def png(bites):
     try:
-        check = struct.unpack('>i', bytes[4:8])[0]
+        check = struct.unpack('>i', bites[4:8])[0]
         if check != 0x0d0a1a0a:
             return None
-        return struct.unpack('>ii', bytes[16:24])
-    except:
+        return struct.unpack('>ii', bites[16:24])
+    except struct.error:
         return None
 
 
-def bytes_to_size(bytes):
-    if len(bytes) < 24:
-        return None
+def bytes_to_size(bites):
+    result = None, None
+    if len(bites) < 24:
+        return result
 
-    peek = bytes[0:2]
+    peek = bites[0:2]
     if peek == b'GI':
-        return gif(bytes), 'gif'
+        result = gif(bites), 'gif'
     elif peek == b'\xff\xd8':
-        return jpeg(bytes), 'jpg'
+        result = jpeg(bites), 'jpg'
     elif peek == b'\x89P':
-        return png(bytes), 'png'
+        result = png(bites), 'png'
     elif peek == b"II" or peek == b"MM":
-        return None, 'tif'
-    if peek == b"BM":
-        return None, 'bmp'
-    else:
-        return None, None
+        result = None, 'tif'
+    elif peek == b"BM":
+        result = None, 'bmp'
+    return result
 
 
 async def get_size(url):
