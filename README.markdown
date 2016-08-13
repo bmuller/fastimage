@@ -20,7 +20,7 @@ Usage is pretty dang simple.
 
 ```python
 import asyncio
-from fastimage import get_size
+from fastimage.detect import get_size
 
 loop = asyncio.get_event_loop()
 url = "http://stephensykes.com/images/ss.com_x.gif"
@@ -37,7 +37,7 @@ Size: 266 x 56
 You can also just get the image type:
 ```python
 import asyncio
-from fastimage import get_type
+from fastimage.detect import get_type
 
 loop = asyncio.get_event_loop()
 url = "http://stephensykes.com/images/ss.com_x.gif"
