@@ -26,7 +26,9 @@ class ImageCollector:
         while chunk and len(body) < 3000000:
             body += chunk
             self.size, self.type = bytes_to_size(body)
-            if self.size is not None:
+            # we can terminate downloading once we get a size or know
+            # that it's a type we can't get the size for easily
+            if self.size is not None or self.type in ['bmp', 'tif']:
                 response.close(True)
                 return
             chunk = await response.content.read(8)
