@@ -1,7 +1,35 @@
-# Some help from http://stackoverflow.com/questions/8032642/how-to-obtain-image-size-using-standard-python-class-without-using-external-lib
-# and https://github.com/philadams/dimensions and https://github.com/sdsykes/fastimage/blob/master/lib/fastimage.rb
-from StringIO import StringIO
+from io import BytesIO
 import struct
+import aiohttp
+
+# Some help from:
+# - http://bit.ly/1MYBDYv
+# - https://github.com/philadams/dimensions
+# - https://github.com/sdsykes/fastimage/blob/master/lib/fastimage.rb
+
+
+class ImageCollector:
+    def __init__(self, url):
+        self.url = url
+        self.size = None
+        self.type = None
+
+    async def collect(self):
+        with aiohttp.Timeout(10):
+            async with aiohttp.ClientSession() as session:
+                async with session.get(self.url) as response:
+                    await self._parse(response)
+
+    async def _parse(self, response):
+        body = bytes()
+        chunk = await response.content.read(24)
+        while chunk and len(body) < 3000000:
+            body += chunk
+            self.size, self.type = bytes_to_size(body)
+            if self.size is not None:
+                response.close(True)
+                return
+            chunk = await response.content.read(8)
 
 
 def gif(bytes):
@@ -12,7 +40,7 @@ def gif(bytes):
 
 
 def jpeg(bytes):
-    fhandle = StringIO(bytes)
+    fhandle = BytesIO(bytes)
     try:
         fhandle.seek(0)
         size = 2
@@ -27,7 +55,7 @@ def jpeg(bytes):
         fhandle.seek(1, 1)
         h, w = struct.unpack('>HH', fhandle.read(4))
         return w, h
-    except:
+    except Exception as e:
         return None
 
 
@@ -46,15 +74,27 @@ def bytes_to_size(bytes):
         return None
 
     peek = bytes[0:2]
-    if peek == "GI":
+    if peek == b'GI':
         return gif(bytes), 'gif'
-    elif peek == '\xff\xd8':
+    elif peek == b'\xff\xd8':
         return jpeg(bytes), 'jpg'
-    elif peek == '\x89P':
+    elif peek == b'\x89P':
         return png(bytes), 'png'
-    elif peek == "II" or peek == "MM":
+    elif peek == b"II" or peek == b"MM":
         return None, 'tif'
-    if peek == "BM":
+    if peek == b"BM":
         return None, 'bmp'
     else:
         return None, None
+
+
+async def get_size(url):
+    collector = ImageCollector(url)
+    await collector.collect()
+    return collector.size
+
+
+async def get_type(url):
+    collector = ImageCollector(url)
+    await collector.collect()
+    return collector.type
