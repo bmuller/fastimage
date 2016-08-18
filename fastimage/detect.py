@@ -62,6 +62,26 @@ def jpeg(bites):
         return None
 
 
+def webp(bites):
+    # pylint: disable=invalid-name
+    vp8 = bites[12:16]
+    result = None
+    if vp8 == b"VP8 " and len(bites) > 30:
+        width, height = struct.unpack('<HH', bites[26:30])
+        return [width & 0x3fff, height & 0x3fff]
+    elif vp8 == b"VP8L" and len(bites) > 25:
+        b1, b2, b3, b4 = bites[21:25]
+        width = 1 + (((b2 & 0x3f) << 8) | b1)
+        height = 1 + (((b4 & 0xF) << 10) | (b3 << 2) | ((b2 & 0xC0) >> 6))
+        return [width, height]
+    elif vp8 == b"VP8X" and len(bites) > 30:
+        b1, b2, b3, b4, b5, b6 = struct.unpack('BBBBBB', bites[24:30])
+        width = 1 + b1 + (b2 << 8) + (b3 << 16)
+        height = 1 + b4 + (b5 << 8) + (b6 << 16)
+        return [width, height]
+    return result
+
+
 def png(bites):
     try:
         check = struct.unpack('>i', bites[4:8])[0]
@@ -88,6 +108,8 @@ def bytes_to_size(bites):
         result = None, 'tif'
     elif peek == b"BM":
         result = None, 'bmp'
+    elif peek == b'RI' and bites[8:12] == b'WEBP':
+        result = webp(bites), 'webp'
     return result
 
 

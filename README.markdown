@@ -51,4 +51,4 @@ which will poop out:
 Type: gif
 ```
 
-Right now, sizes can be deduced from gif / jpg / png.  Additionally, it can detect the type (but not size) of bmp / tiff.
+Right now, sizes can be deduced from webp / gif / jpg / png.  Additionally, it can detect the type (but not size) of bmp / tiff.

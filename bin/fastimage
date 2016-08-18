@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 import asyncio
 import sys
-from fastimage.detect import ImageCollector
+import os
 
 if len(sys.argv) < 2:
     print("Usage: %s <image url>" % sys.argv[0])
     sys.exit(0)
+
+sys.path.append("%s/.." % os.path.dirname(__file__))
+from fastimage.detect import ImageCollector
 
 loop = asyncio.get_event_loop()
 collector = ImageCollector(sys.argv[1])
