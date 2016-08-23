@@ -1,11 +1,20 @@
+import asyncio
 from io import BytesIO
 import struct
+
 import aiohttp
+from aiohttp.errors import ClientOSError
 
 # Some help from:
 # - http://bit.ly/1MYBDYv
 # - https://github.com/philadams/dimensions
 # - https://github.com/sdsykes/fastimage/blob/master/lib/fastimage.rb
+
+
+class DownloadError(Exception):
+    """
+    Any issue downloading from the server (timeout, couldn't connect).
+    """
 
 
 class ImageCollector:
@@ -15,6 +24,13 @@ class ImageCollector:
         self.type = None
 
     async def collect(self):
+        try:
+            return await self._collect()
+        except (ValueError, ClientOSError, asyncio.TimeoutError):
+            msg = "Issue downloading first bytes of %s" % self.url
+            raise DownloadError(msg)
+
+    async def _collect(self):
         with aiohttp.Timeout(10):
             async with aiohttp.ClientSession() as session:
                 async with session.get(self.url) as response:
