@@ -2,4 +2,4 @@ language: python
 python:
   - "3.5"
 install: pip install . pep8 pylint
-script: pep8 fastimage && pylint fastimage
+script: pep8 fastimage && pylint fastimage && python -m unittest

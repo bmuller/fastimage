@@ -71,7 +71,8 @@ def jpeg(bites):
             ftype = ord(byte)
             size = struct.unpack('>H', fhandle.read(2))[0] - 2
         fhandle.seek(1, 1)
-        return struct.unpack('>HH', fhandle.read(4))
+        height, width = struct.unpack('>HH', fhandle.read(4))
+        return (width, height)
     except struct.error:
         return None
     except TypeError:
