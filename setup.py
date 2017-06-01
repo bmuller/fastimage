@@ -11,6 +11,6 @@ setup(
     license="MIT",
     url="http://github.com/bmuller/fastimage",
     packages=find_packages(),
-    install_requires=["aiohttp>=1.2.0"],
+    install_requires=["aiohttp>=2.1.0"],
     scripts=['bin/fastimage']
 )

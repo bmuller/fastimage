@@ -3,8 +3,6 @@ from io import BytesIO
 import struct
 
 import aiohttp
-from aiohttp.errors import ClientOSError
-from aiohttp import ClientResponseError
 
 # Some help from:
 # - http://bit.ly/1MYBDYv
@@ -27,8 +25,7 @@ class ImageCollector:
     async def collect(self):
         try:
             return await self._collect()
-        except (ValueError, ClientOSError, asyncio.TimeoutError,
-                ClientResponseError):
+        except (ValueError, aiohttp.ClientError, asyncio.TimeoutError):
             msg = "Issue downloading first bytes of %s" % self.url
             raise DownloadError(msg)
 
